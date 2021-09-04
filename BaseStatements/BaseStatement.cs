@@ -12,17 +12,17 @@ namespace ATGStateMachine
     /// <typeparam name="T"></typeparam>
     public abstract class BaseStatement<T>
     {
-        protected readonly T _mainObject; // manipulate object
-        protected readonly IStateSwitcher _stateSwitcher; // switch state
+        protected readonly T MainObject; // Manipulate object
+        protected readonly IStateSwitcher StateSwitcher; // Switch state
 
         protected BaseStatement(T mainObject, IStateSwitcher stateSwitcher)
         {
-            _mainObject = mainObject;
-            _stateSwitcher = stateSwitcher;
+            MainObject = mainObject;
+            StateSwitcher = stateSwitcher;
         }
 
-        public abstract void Enter(); // enter the state callback
-        public virtual void Exit() { } // exit the state callback
-        public virtual void Execute() { } // stay the state callback
+        public abstract void Enter(); // Enter the state callback
+        public virtual void Exit() { } // Exit the state callback
+        public virtual void Execute() { } // Stay the state callback
     }
 }

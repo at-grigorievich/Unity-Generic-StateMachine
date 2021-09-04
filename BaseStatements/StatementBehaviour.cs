@@ -12,27 +12,21 @@ namespace ATGStateMachine
     /// <typeparam name="T"></typeparam>
     public class StatementBehaviour<T> : MonoBehaviour, IStateSwitcher
     {
-        protected BaseStatement<T> _currentState = null;
+        private BaseStatement<T> _currentState;
         private BaseStatement<T> _waitingState;
-
-
-        protected HashSet<BaseStatement<T>> _allStates = new HashSet<BaseStatement<T>>();
         
-
-        public virtual void OnState(bool isExit = false)
-        {
-            if (_currentState != null)
-            {
-                _currentState.Enter();
-            }
-        }
-        public virtual void OnExecute()
-        {
-            if(_currentState != null)
-            {
-                _currentState.Execute();
-            }
-        }
+        protected readonly List<BaseStatement<T>> AllStates = new List<BaseStatement<T>>();
+        
+        // Call after init all states
+        protected void InitStartState() => _currentState = AllStates[0];
+        
+        // Call to Enter to current state
+        public virtual void OnState(bool isExit = false) =>_currentState?.Enter();
+        
+        // Call to Execute current state
+        public virtual void OnExecute() => _currentState?.Execute();
+        
+        // Call to continue work of state machine
         public virtual void OnContinueState()
         {
             if (_waitingState != null && _currentState == null)
@@ -42,6 +36,8 @@ namespace ATGStateMachine
             }
             else Debug.LogError("Waiting state in null !");
         }
+        
+        // Call to stop work of state machine
         public virtual void OnPauseState()
         {
             if(_currentState != null)
@@ -50,6 +46,8 @@ namespace ATGStateMachine
                 _currentState = null;
             }
         }
+       
+        // Call to stop state machine working
         public virtual void OnStopState()
         {
             if(_currentState != null)
@@ -57,38 +55,23 @@ namespace ATGStateMachine
                 _currentState.Exit();
                 _currentState = null;
 
-                _allStates.Clear();
+                AllStates.Clear();
             }
         }
 
         // switch object state
-        public virtual void StateSwitcher<K>()
+        public virtual void StateSwitcher<TK>()
         {
-            BaseStatement<T> state = null;
-
-            foreach(var s in _allStates)
+            var state = AllStates.Find(state => state is TK);
+            
+            if (state != _currentState && state != null)
             {
-                if(s is K)
+                if (_currentState != null)
                 {
-                    state = s as BaseStatement<T>;
-                }
-            }
-
-            if (state != null)
-            {
-                if (state != _currentState)
-                {
-                    if (_currentState != null)
-                    {
-                        _currentState.Exit();
-                    }
-                    state.Enter();
+                    _currentState.Exit();
                 }
                 _currentState = state;
-            }
-            else
-            {
-                throw new NullReferenceException($"Cant find state {typeof(K)}");
+                state.Enter();
             }
         }
     }
